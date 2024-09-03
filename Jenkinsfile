@@ -1,7 +1,7 @@
 pipeline {
     agent { label "Jenkins-Agent" }
     environment {
-        APP_NAME = "register-app-pipeline"
+              APP_NAME = "register-app-pipeline"
     }
 
     stages {
@@ -12,9 +12,9 @@ pipeline {
         }
 
         stage("Checkout from SCM") {
-            steps {
-                git branch: 'main', credentialsId: 'github', url: 'https://github.com/Rakshith1233/gitops-register-app'
-            }
+               steps {
+                   git branch: 'main', credentialsId: 'github', url: 'https://github.com/Rakshith1233/gitops-register-app'
+               }
         }
 
         stage("Update the Deployment Tags") {
@@ -30,18 +30,16 @@ pipeline {
         stage("Push the changed deployment file to Git") {
             steps {
                 sh """
-                   git config user.name "Rakshith1233"
-                   git config user.email "rakshithks527@gmail.com"
+                   git config --global user.name "Rakshith1233"
+                   git config --global user.email "rakshithks527@gmail.com"
                    git add deployment.yaml
                    git commit -m "Updated Deployment Manifest"
                 """
-                withCredentials([usernamePassword(credentialsId: 'github', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh """
-                        git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Rakshith1233/gitops-register-app.git
-                        git push origin main
-                    """
+                withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]) {
+                  sh "git push https://github.com/Rakshith1233/gitops-register-app main"
                 }
             }
         }
+      
     }
 }
